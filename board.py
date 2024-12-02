@@ -88,5 +88,33 @@ class Board:
                         return r, c
             return None
 
+        def check_board(self):
+            for r in range(9):
+                nums = []
+                for c in range(9):
+                    nums.append(self.cells[r][c].value)
+                nums.sort()
+                if sorted(nums) != list(range(1, 10)):
+                    return False
+
+            for c in range(9):
+                nums = []
+                for r in range(9):
+                    nums.append(self.cells[r][c].value)
+                nums.sort()
+                if sorted(nums) != list(range(1, 10)):
+                    return False
+
+            for box_r in range(3):
+                for box_c in range(3):
+                    nums = []
+                    for r in range(box_r * 3, box_r * 3 + 3):
+                        for c in range(box_c * 3, box_c * 3 + 3):
+                            nums.append(self.cells[r][c].value)
+                    nums.sort()
+                    if sorted(nums) != list(range(1, 10)):
+                        return False
+
+            return True
 
 

@@ -68,3 +68,25 @@ class Board:
                 cell = self.cells[r][c]
                 if cell and self.og_board[r][c] == 0:
                     cell.restart()
+
+        def is_full(self):
+            for r in range(9):
+                for c in range(9):
+                    if self.cells[r][c].value == 0:
+                        return False
+            return True
+
+        def update_board(self):
+            for r in range(9):
+                for c in range(9):
+                    self.og_board[r][c] = self.cells[r][c].value
+
+        def find_empty(self):
+            for r in range(9):
+                for c in range(9):
+                    if self.cells[r][c].value == 0:
+                        return r, c
+            return None
+
+
+

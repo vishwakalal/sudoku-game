@@ -1,120 +1,138 @@
-import pygame
-from sudoku_generator import*
 from cell import*
+from sudoku_generator import*
 
 class Board:
     def __init__(self, width, height, screen, difficulty):
-        self.width = width
-        self.height = height
-        self.screen = screen
-        self.difficulty = difficulty
-        self.selected = None
-        self.og_board = None
-        self.cells = []
-        for r in range(9):
-            self.cells.append([None] * 9)
+        self.width=width
+        self.height=height
+        self.screen=screen
+        self.difficulty=difficulty
+        self.removed=0
+        self.cell_board=[]
+        self.selected=None
+        self.mode='real'
+        self.answerkey=[]
+
+
+        if difficulty.lower()=="easy":
+            self.removed=30
+        elif difficulty.lower()=="medium":
+            self.removed=40
+        else:
+            self.removed=50
+        sudoku = SudokuGenerator(9, self.removed)
+
+        sudoku.fill_values()
+        print("answerkey:")
+        self.answerkey = sudoku.get_board()
+        print(self.answerkey)
+        print()
+        print()
+        sudoku.print_board()
+        sudoku.remove_cells()
+        # print('game')
+        # sudoku.print_board()
+        self.board=sudoku.get_board()
+
+        self.original_board = []
+        for row in self.board:
+            new_row = list(row)
+            self.original_board.append(new_row)
+
+        for row in range(9):
+            cell_row = []
+            for col in range(9):
+                value = self.board[row][col]
+                cell_row.append(Cell(value, row, col, screen))
+            self.cell_board.append(cell_row)
+
+    def draw_cells(self):
+        for row in self.cell_board:
+            for cell in row:
+                cell.draw()
+
 
 
     def draw(self):
-        #drawing all the cells
-        for r in range(len(self.cells)):
-            for c in range(len(self.cells[r])):
-                self.cells[r][c].draw()
-
-
+        self.draw_cells()
         for i in range(10):
-            # setting the correct line thickness for each line
-            if i % 3 == 0:
-                width = 3
-            else:
-                width = 1
-            # drawing the horizontal lines
-            pygame.draw.line(self.screen, BLACK, (0, self.height // 9 * i), (self.width, self.height // 9 * i), width)
-            # drawing the vertical lines
-            pygame.draw.line(self.screen, BLACK,(self.width // 9 * i, 0), (self.width // 9 * i, self.height), width)
+            thickness=5
+            if i%3==0:
+                thickness=7
+            pygame.draw.line(self.screen, BLACK, (5, i*Cell.cell_height+5), (self.width+5, i*Cell.cell_height+5), thickness)
+            pygame.draw.line(self.screen, BLACK, (i*Cell.cell_width+5, 5), (i*Cell.cell_width+5, self.height+5), thickness)
 
     def select(self, row, col):
-        # unselects last selected cell if any
-        if self.selected != None:
-            self.selected.outline_col = BLACK
-        #selects the new cell and highlights it red
-        self.selected = self.cells[row][col]
-        self.selected.outline_col = RED
+        if self.selected:
+            self.selected.selected = False
 
-    def click(self, row, col):
-        if row < self.width and col < self.height:
-            row // (self.height // 9)
-            col // (self.width // 9)
-            return row, col
+        cell = self.cell_board[row][col]
+        cell.selected = True
+        self.selected = cell
+
+    def click(self, row , col):
+        if self.selected!=None:
+            return (row, col)
         return None
 
     def clear(self):
-        if self.selected != None:
-            self.selected.set_cell_value(0)
-            self.selected.set_sketched_value(0)
+        self.selected=None
 
     def sketch(self, value):
-        if self.selected != None:
+        self.selected.set_sketched_value(value)
+
+    def place_num(self, value):
+        if self.selected:
             self.selected.set_cell_value(value)
+            self.board[self.selected.row][self.selected.col] = value
 
-    def place_number(self, value):
-        if self.selected != None:
-            self.selected.set_cell_value(value)
-            self.selected.set_sketched_value(0)
+    def reset_to_original(self):
+        self.board = [row[:] for row in self.original_board]
+        for row in self.board:
+            print(row)
 
-    def reset_to_orginal(self):
-        for r in range(9):
-            for c in range(9):
-                cell = self.cells[r][c]
-                if cell and self.og_board[r][c] == 0:
-                    cell.restart()
+        for row in range(9):
+            for col in range(9):
+                value = self.original_board[row][col]
+                self.cell_board[row][col].set_cell_value(value)
+                self.cell_board[row][col].set_sketched_value(0)
 
-        def is_full(self):
-            for r in range(9):
-                for c in range(9):
-                    if self.cells[r][c].value == 0:
-                        return False
-            return True
 
-        def update_board(self):
-            for r in range(9):
-                for c in range(9):
-                    self.og_board[r][c] = self.cells[r][c].value
+    def is_valid_board(self):
 
-        def find_empty(self):
-            for r in range(9):
-                for c in range(9):
-                    if self.cells[r][c].value == 0:
-                        return r, c
-            return None
-
-        def check_board(self):
-            for r in range(9):
-                nums = []
-                for c in range(9):
-                    nums.append(self.cells[r][c].value)
-                nums.sort()
-                if sorted(nums) != list(range(1, 10)):
+        for row in range(9):
+            for col in range(9):
+                current_value = self.board[row][col]
+                answer_value = self.answerkey[row][col]
+                if current_value != answer_value:
                     return False
+        return True
 
-            for c in range(9):
-                nums = []
-                for r in range(9):
-                    nums.append(self.cells[r][c].value)
-                nums.sort()
-                if sorted(nums) != list(range(1, 10)):
-                    return False
 
-            for box_r in range(3):
-                for box_c in range(3):
-                    nums = []
-                    for r in range(box_r * 3, box_r * 3 + 3):
-                        for c in range(box_c * 3, box_c * 3 + 3):
-                            nums.append(self.cells[r][c].value)
-                    nums.sort()
-                    if sorted(nums) != list(range(1, 10)):
-                        return False
 
-            return True
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

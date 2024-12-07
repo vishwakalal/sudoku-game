@@ -4,9 +4,9 @@ from board import Board
 from sudoku_generator import *
 from cell import Cell
 
-WHITE = (255,255,255)
-LIGHT_BLUE=(176,224,230)
-GRAY=(128, 128, 128)
+LVL1=(244,227,246)
+LVL2 = (219,188,223)
+LVL3=(188, 139, 194)
 RED = (255,0,0)
 GREEN = (0,255,0)
 
@@ -27,11 +27,9 @@ EASY= scale(pygame.image.load('easy.png'), 0.2)
 MEDIUM= scale(pygame.image.load('medium.png'), 0.2)
 HARD= scale(pygame.image.load('hard.png'), 0.2)
 EXIT= scale(pygame.image.load('exit.png'), 0.13)
-EXIT_RECT = pygame.Rect(360, 645, EXIT.get_width(), EXIT.get_height())
-EXIT_MASK = pygame.mask.from_surface(EXIT)
 RESET= scale(pygame.image.load('reset.png'), 0.1)
-RESET_RECT = pygame.Rect(220, 655, RESET.get_width(), RESET.get_height())
-RESET_MASK = pygame.mask.from_surface(RESET)
+RESTART = scale(pygame.image.load('restart.png'), 0.07)
+
 
 def win():
     run = True
@@ -81,9 +79,10 @@ def easy():
     running = True
     board = Board(640, 640, screen, 'easy')
     while running:
-        screen.fill(LIGHT_BLUE)
+        screen.fill(LVL1)
         screen.blit(EXIT, (360, 645))
         screen.blit(RESET, (220, 655))
+        screen.blit(RESTART, (60, 670))
 
         board.draw()
         pygame.display.flip()
@@ -98,6 +97,8 @@ def easy():
                     board.reset_to_original()
                     board.draw()
                     pygame.display.flip()
+                if 61 <= x <= 184 and 671 <= y <= 706:
+                    running = False
                 elif 362 <= x <= 434 and 654 <= y <= 725:
                     pygame.quit()
 
@@ -133,10 +134,10 @@ def medium():
     running = True
     board = Board(640, 640, screen, 'medium')
     while running:
-        screen.fill(WHITE)
+        screen.fill(LVL2)
         screen.blit(EXIT, (360, 645))
         screen.blit(RESET, (220, 655))
-
+        screen.blit(RESTART, (60, 670))
         board.draw()
         pygame.display.flip()
 
@@ -150,6 +151,8 @@ def medium():
                     board.reset_to_original()
                     board.draw()
                     pygame.display.flip()
+                if 61 <= x <= 184 and 671 <= y <= 706:
+                    running = False
                 elif 362 <= x <= 434 and 654 <= y <= 725:
                     pygame.quit()
 
@@ -187,10 +190,10 @@ def hard():
     board = Board(640, 640, screen, 'hard')
 
     while running:
-        screen.fill(GRAY)
+        screen.fill(LVL3)
         screen.blit(EXIT, (360, 645))
         screen.blit(RESET, (220, 655))
-
+        screen.blit(RESTART, (60, 670))
         board.draw()
         pygame.display.flip()
 
@@ -204,6 +207,8 @@ def hard():
                     board.reset_to_original()
                     board.draw()
                     pygame.display.flip()
+                if 61 <= x <= 184 and 671 <= y <= 706:
+                    running = False
                 elif 362 <= x <= 434 and 654 <= y <= 725:
                     pygame.quit()
 

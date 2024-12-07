@@ -87,7 +87,10 @@ class Board:
             self.board[self.selected.row][self.selected.col] = value
 
     def reset_to_original(self):
-        self.board = [row[:] for row in self.original_board]
+        self.board = []
+        for row in self.original_board:
+            copied_row = row[:]
+            self.board.append(copied_row)
         for row in self.board:
             print(row)
 
